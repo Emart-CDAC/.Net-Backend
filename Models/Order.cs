@@ -7,19 +7,16 @@ public partial class Order
 {
     public int OrderId { get; set; }
 
-    public string? DeliveryType { get; set; }
-
+    public DeliveryType? DeliveryType { get; set; }
     public int? EpointsEarned { get; set; }
 
     public int? EpointsUsed { get; set; }
 
     public DateTime? OrderDate { get; set; }
 
-    public string? PaymentMethod { get; set; }
-
-    public string? PaymentStatus { get; set; }
-
-    public sbyte? Status { get; set; }
+    public PaymentMethod? PaymentMethod { get; set; }
+    public PaymentStatus? PaymentStatus { get; set; }
+    public OrderStatus Status { get; set; }
 
     public decimal? TotalAmount { get; set; }
 

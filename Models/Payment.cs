@@ -9,8 +9,7 @@ public partial class Payment
 
     public double? Amount { get; set; }
 
-    public string? Mode { get; set; }
-
+    public PaymentMethod? Mode { get; set; }
     public DateTime? PaymentDate { get; set; }
 
     public string? RazorpayOrderId { get; set; }
@@ -19,8 +18,7 @@ public partial class Payment
 
     public string? RazorpaySignature { get; set; }
 
-    public string? Status { get; set; }
-
+    public PaymentStatus? Status { get; set; }
     public string? TransactionId { get; set; }
 
     public int? OrderId { get; set; }

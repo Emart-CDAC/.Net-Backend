@@ -221,7 +221,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.AddressId).HasColumnName("address_id");
             entity.Property(e => e.AuthProvider)
-                .HasColumnType("enum('GOOGLE','LOCAL')")
+                 .HasConversion<string>()
                 .HasColumnName("auth_provider");
             entity.Property(e => e.BirthDate).HasColumnName("birth_date");
             entity.Property(e => e.CardHolderId).HasColumnName("card_holder_id");
@@ -274,7 +274,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("billing_address");
             entity.Property(e => e.DeliveryType)
-                .HasColumnType("enum('HOME_DELIVERY','STORE')")
+                .HasConversion<string>()
                 .HasColumnName("delivery_type");
             entity.Property(e => e.DiscountAmount)
                 .HasPrecision(38, 2)
@@ -355,7 +355,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.AddressId).HasColumnName("address_id");
             entity.Property(e => e.CartId).HasColumnName("cart_id");
             entity.Property(e => e.DeliveryType)
-                .HasColumnType("enum('HOME_DELIVERY','STORE')")
+                 .HasConversion<string>()
                 .HasColumnName("delivery_type");
             entity.Property(e => e.EpointsEarned).HasColumnName("epoints_earned");
             entity.Property(e => e.EpointsUsed).HasColumnName("epoints_used");
@@ -363,12 +363,14 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(6)
                 .HasColumnName("order_date");
             entity.Property(e => e.PaymentMethod)
-                .HasColumnType("enum('CASH','RAZORPAY')")
+                .HasConversion<string>()
                 .HasColumnName("payment_method");
             entity.Property(e => e.PaymentStatus)
-                .HasColumnType("enum('FAILED','PAID','PENDING')")
+                 .HasConversion<string>()
                 .HasColumnName("payment_status");
-            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.Status)
+                .HasConversion<string>()
+                .HasColumnName("status");
             entity.Property(e => e.StoreId).HasColumnName("store_id");
             entity.Property(e => e.TotalAmount)
                 .HasPrecision(38, 2)
@@ -435,7 +437,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.PaymentId).HasColumnName("payment_id");
             entity.Property(e => e.Amount).HasColumnName("amount");
             entity.Property(e => e.Mode)
-                .HasColumnType("enum('CASH','RAZORPAY')")
+                .HasConversion<string>()
                 .HasColumnName("mode");
             entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.PaymentDate)
@@ -451,7 +453,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("razorpay_signature");
             entity.Property(e => e.Status)
-                .HasColumnType("enum('FAILED','PAID','PENDING')")
+                .HasConversion<string>()
                 .HasColumnName("status");
             entity.Property(e => e.TransactionId)
                 .HasMaxLength(255)

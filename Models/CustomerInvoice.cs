@@ -9,7 +9,7 @@ public partial class CustomerInvoice
 
     public string? BillingAddress { get; set; }
 
-    public string? DeliveryType { get; set; }
+    public DeliveryType? DeliveryType { get; set; }
 
     public decimal? DiscountAmount { get; set; }
 
