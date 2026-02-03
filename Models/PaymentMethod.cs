@@ -2,7 +2,7 @@
 {
     public enum PaymentMethod
     {
-        CASH,
-        RAZORPAY
+        Cash,
+        Razorpay
     }
 }
