@@ -1,19 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Emart_DotNet.Models;
 
+[Table("category")]
 public partial class Category
 {
+    [Key]
+    [Column("category_id")]
     public int CategoryId { get; set; }
 
+    [Column("category_name")]
+    [StringLength(255)]
     public string? CategoryName { get; set; }
 
+    [Column("parent_category_id")]
     public int? ParentCategoryId { get; set; }
 
-    public virtual ICollection<Category> InverseParentCategory { get; set; } = new List<Category>();
-
+    [ForeignKey("ParentCategoryId")]
+    [InverseProperty("InverseParentCategory")]
     public virtual Category? ParentCategory { get; set; }
 
+    [InverseProperty("ParentCategory")]
+    public virtual ICollection<Category> InverseParentCategory { get; set; } = new List<Category>();
+
+    [InverseProperty("Category")]
     public virtual ICollection<SubCategory> SubCategories { get; set; } = new List<SubCategory>();
 }

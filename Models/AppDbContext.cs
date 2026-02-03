@@ -28,7 +28,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Customer> Customers { get; set; }
 
-    public virtual DbSet<CustomerInvoice> CustomerInvoices { get; set; }
+    public virtual DbSet<Invoice> Invoices { get; set; }
 
     public virtual DbSet<EmartCard> EmartCards { get; set; }
 
@@ -185,24 +185,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FKl7je3auqyq1raj52qmwrgih8x");
         });
 
-        modelBuilder.Entity<Category>(entity =>
-        {
-            entity.HasKey(e => e.CategoryId).HasName("PRIMARY");
 
-            entity.ToTable("category");
-
-            entity.HasIndex(e => e.ParentCategoryId, "FKs2ride9gvilxy2tcuv7witnxc");
-
-            entity.Property(e => e.CategoryId).HasColumnName("category_id");
-            entity.Property(e => e.CategoryName)
-                .HasMaxLength(255)
-                .HasColumnName("category_name");
-            entity.Property(e => e.ParentCategoryId).HasColumnName("parent_category_id");
-
-            entity.HasOne(d => d.ParentCategory).WithMany(p => p.InverseParentCategory)
-                .HasForeignKey(d => d.ParentCategoryId)
-                .HasConstraintName("FKs2ride9gvilxy2tcuv7witnxc");
-        });
 
         modelBuilder.Entity<Customer>(entity =>
         {
@@ -259,52 +242,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK7adfelh6bpnfyuojtya9ac5g6");
         });
 
-        modelBuilder.Entity<CustomerInvoice>(entity =>
-        {
-            entity.HasKey(e => e.InvoiceId).HasName("PRIMARY");
 
-            entity.ToTable("customer_invoice");
-
-            entity.HasIndex(e => e.UserId, "FK3ifcnhuiuh7cqtkyom4rkvpny");
-
-            entity.HasIndex(e => e.OrderId, "FKqek788thwxrp3vthsitj3ei0l");
-
-            entity.Property(e => e.InvoiceId).HasColumnName("invoice_id");
-            entity.Property(e => e.BillingAddress)
-                .HasMaxLength(255)
-                .HasColumnName("billing_address");
-            entity.Property(e => e.DeliveryType)
-                .HasConversion<string>()
-                .HasColumnName("delivery_type");
-            entity.Property(e => e.DiscountAmount)
-                .HasPrecision(38, 2)
-                .HasColumnName("discount_amount");
-            entity.Property(e => e.EpointsBalance).HasColumnName("epoints_balance");
-            entity.Property(e => e.EpointsEarned).HasColumnName("epoints_earned");
-            entity.Property(e => e.EpointsUsed).HasColumnName("epoints_used");
-            entity.Property(e => e.OrderDate)
-                .HasMaxLength(6)
-                .HasColumnName("order_date");
-            entity.Property(e => e.OrderId).HasColumnName("order_id");
-            entity.Property(e => e.ShippingAddress)
-                .HasMaxLength(255)
-                .HasColumnName("shipping_address");
-            entity.Property(e => e.TaxAmount)
-                .HasPrecision(38, 2)
-                .HasColumnName("tax_amount");
-            entity.Property(e => e.TotalAmount)
-                .HasPrecision(38, 2)
-                .HasColumnName("total_amount");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-
-            entity.HasOne(d => d.Order).WithMany(p => p.CustomerInvoices)
-                .HasForeignKey(d => d.OrderId)
-                .HasConstraintName("FKqek788thwxrp3vthsitj3ei0l");
-
-            entity.HasOne(d => d.User).WithMany(p => p.CustomerInvoices)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK3ifcnhuiuh7cqtkyom4rkvpny");
-        });
 
         modelBuilder.Entity<EmartCard>(entity =>
         {
@@ -524,28 +462,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("store_name");
         });
 
-        modelBuilder.Entity<SubCategory>(entity =>
-        {
-            entity.HasKey(e => e.SubCategoryId).HasName("PRIMARY");
 
-            entity.ToTable("sub_category");
-
-            entity.HasIndex(e => e.CategoryId, "FKl65dyy5me2ypoyj8ou1hnt64e");
-
-            entity.Property(e => e.SubCategoryId).HasColumnName("sub_category_id");
-            entity.Property(e => e.Brand)
-                .HasMaxLength(255)
-                .HasColumnName("brand");
-            entity.Property(e => e.CategoryId).HasColumnName("category_id");
-            entity.Property(e => e.Sponsors)
-                .HasColumnType("bit(1)")
-                .HasColumnName("sponsors");
-
-            entity.HasOne(d => d.Category).WithMany(p => p.SubCategories)
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKl65dyy5me2ypoyj8ou1hnt64e");
-        });
 
         OnModelCreatingPartial(modelBuilder);
     }
