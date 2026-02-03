@@ -65,6 +65,7 @@ namespace Emart_DotNet.Repositories
         }
     }
 
+
     // Store Repository
     public interface IStoreRepository
     {
@@ -79,4 +80,51 @@ namespace Emart_DotNet.Repositories
             return await _context.Stores.FindAsync(storeId);
         }
     }
+
+    // Payment Repository
+    public interface IPaymentRepository
+    {
+        Task<Payment> SaveAsync(Payment payment);
+        Task<Payment?> FindByOrderOrderIdAsync(int orderId);
+    }
+
+    public class PaymentRepository : IPaymentRepository
+    {
+        private readonly AppDbContext _context;
+        public PaymentRepository(AppDbContext context) { _context = context; }
+
+        public async Task<Payment> SaveAsync(Payment payment)
+        {
+            if (payment.PaymentId == 0)
+                _context.Payments.Add(payment);
+            else
+                _context.Payments.Update(payment);
+            await _context.SaveChangesAsync();
+            return payment;
+        }
+
+        public async Task<Payment?> FindByOrderOrderIdAsync(int orderId)
+        {
+            return await _context.Payments
+                .FirstOrDefaultAsync(p => p.OrderId == orderId);
+        }
+    }
+    
+    // Address Repository
+    public interface IAddressRepository
+    {
+        Task<Address?> FindByIdAsync(int addressId);
+    }
+    public class AddressRepository : IAddressRepository
+    {
+        private readonly AppDbContext _context;
+        public AddressRepository(AppDbContext context) { _context = context; }
+        public async Task<Address?> FindByIdAsync(int addressId)
+        {
+            return await _context.Addresses.FindAsync(addressId);
+        }
+    }
+
+
+
 }

@@ -16,7 +16,7 @@ namespace Emart_DotNet
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
   
-            builder.Services.AddDbContext<Emart_DotNet.Models.AppDbContext>(options =>
+            builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.40-mysql")
@@ -33,15 +33,16 @@ namespace Emart_DotNet
             builder.Services.AddScoped<IAddressRepository,AddressRepository>();
             builder.Services.AddScoped<IStoreRepository,StoreRepository>();
             builder.Services.AddScoped<ICustomerRepository,CustomerRepository>();
+
             builder.Services.AddScoped<IPaymentRepository,PaymentRepository>();
+
 
             builder.Services.AddScoped<ICartService,CartService>();
             builder.Services.AddScoped<IOrderService,OrderService>();
-            builder.Services.AddScoped<IPaymentService,PaymentService>();
+            //builder.Services.AddScoped<IPaymentService,PaymentService>();
             builder.Services.AddScoped<IProductService,ProductService>();
-
-            // Register DbContext
-            builder.Services.AddDbContext<AppDbContext>();
+            builder.Services.AddScoped<IStoreService, StoreService>();
+            builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 
             // Register Repositories
             builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();

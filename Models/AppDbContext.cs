@@ -435,29 +435,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FKniucpti15id7jc1gqsnlcpd0b");
         });
 
-        modelBuilder.Entity<Store>(entity =>
-        {
-            entity.HasKey(e => e.StoreId).HasName("PRIMARY");
 
-            entity.ToTable("store");
-
-            entity.Property(e => e.StoreId).HasColumnName("store_id");
-            entity.Property(e => e.Address)
-                .HasMaxLength(255)
-                .HasColumnName("address");
-            entity.Property(e => e.Availability)
-                .HasColumnType("bit(1)")
-                .HasColumnName("availability");
-            entity.Property(e => e.City)
-                .HasMaxLength(255)
-                .HasColumnName("city");
-            entity.Property(e => e.ContactNumber)
-                .HasMaxLength(255)
-                .HasColumnName("contact_number");
-            entity.Property(e => e.StoreName)
-                .HasMaxLength(255)
-                .HasColumnName("store_name");
-        });
 
 
 
