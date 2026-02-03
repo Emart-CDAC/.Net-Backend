@@ -36,7 +36,7 @@ namespace Emart_DotNet.Services
         {
             if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero");
 
-            var customer = await _customerRepo.FindByIdAsync(userId)
+            var customer = await _customerRepo.FindByUserIdAsync(userId)
                            ?? throw new Exception("Customer not found");
 
             int availablePoints = customer.Epoints ?? 0;
@@ -221,7 +221,7 @@ namespace Emart_DotNet.Services
         public async Task<CartResponseDTO> GetCartSummaryAsync(int userId)
         {
              // Ensure cart exists
-            var customer = await _customerRepo.FindByIdAsync(userId)
+            var customer = await _customerRepo.FindByUserIdAsync(userId)
                            ?? throw new Exception("Customer not found");
 
             var cart = await _cartRepo.GetByCustomerAsync(userId);

@@ -39,7 +39,7 @@ namespace Emart_DotNet.Services
 
         public async Task<Order> PlaceOrderAsync(PlaceOrderRequestDTO req)
         {
-            var customer = await _customerRepo.FindByIdAsync(req.UserId)
+            var customer = await _customerRepo.FindByUserIdAsync(req.UserId)
                            ?? throw new Exception("Customer not found");
 
             var cart = await _cartRepo.FindByCustomerAsync(customer)

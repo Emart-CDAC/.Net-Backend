@@ -1,3 +1,5 @@
+using Emart_DotNet.Models;
+
 namespace Emart_DotNet.Repositories
 {
   

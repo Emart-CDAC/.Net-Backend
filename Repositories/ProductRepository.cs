@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emart_DotNet.Repositories
 {
-    
 
     public class ProductRepository : IProductRepository
     {

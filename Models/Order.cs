@@ -9,6 +9,7 @@ public partial class Order
     public int OrderId { get; set; }
 
     public DeliveryType? DeliveryType { get; set; }
+    
     public int? EpointsEarned { get; set; }
 
     public int? EpointsUsed { get; set; }
@@ -16,7 +17,9 @@ public partial class Order
     public DateTime? OrderDate { get; set; }
 
     public PaymentMethod? PaymentMethod { get; set; }
+   
     public PaymentStatus? PaymentStatus { get; set; }
+    
     public OrderStatus Status { get; set; }
 
     public decimal? TotalAmount { get; set; }
@@ -39,6 +42,8 @@ public partial class Order
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+    public virtual ICollection<Invoice> CustomerInvoices { get; set; } = new List<Invoice>();
 
     public virtual Store? Store { get; set; }
 
