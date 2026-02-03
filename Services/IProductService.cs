@@ -1,3 +1,7 @@
+using Emart_DotNet.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace Emart_DotNet.Services
 {
     public interface IProductService
@@ -8,5 +12,6 @@ namespace Emart_DotNet.Services
         Task<Product> UpdateProductAsync(int id, Product product);
         Task DeleteProductAsync(int id);
         Task<List<Product>> SearchProductsAsync(string keyword);
+        Task UploadProductsAsync(Microsoft.AspNetCore.Http.IFormFile file);
     }
 }

@@ -1,3 +1,8 @@
+using Emart_DotNet.Models;
+using Emart_DotNet.DTOs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace Emart_DotNet.Services
 {
     public interface IOrderService

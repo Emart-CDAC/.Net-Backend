@@ -63,5 +63,52 @@ namespace Emart_DotNet.Services
         {
             return await _productRepository.SearchProductsAsync(keyword);
         }
+
+        public async Task UploadProductsAsync(Microsoft.AspNetCore.Http.IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                throw new Exception("File is empty");
+
+            using (var stream = new System.IO.StreamReader(file.OpenReadStream()))
+            {
+                // Skip Header
+                string? header = await stream.ReadLineAsync();
+                
+                while (!stream.EndOfStream)
+                {
+                    string? line = await stream.ReadLineAsync();
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+
+                    var values = line.Split(',');
+                    // Assuming CSV Format matching Java model or simplified
+                    // Name,Desc,Price,Img,Qty,StoreId,SubCatId
+                    if (values.Length < 5) continue; 
+
+                    try 
+                    {
+                        var product = new Product
+                        {
+                            ProductName = values[0].Trim(),
+                            Description = values[1].Trim(),
+                            NormalPrice = decimal.Parse(values[2]),
+                            ProductImageUrl = values[3].Trim(),
+                            AvailableQuantity = int.Parse(values[4]),
+                            // Optional fields or defaults
+                            StoreId = values.Length > 5 ? int.Parse(values[5]) : null,
+                            SubcategoryId = values.Length > 6 ? int.Parse(values[6]) : null
+                            // EcardPrice, Discount logic... default 0 or calc
+                        };
+                        
+                        // Save individually or batch
+                        await _productRepository.SaveAsync(product);
+                    }
+                    catch
+                    {
+                        // Skip bad lines or log
+                        continue;
+                    }
+                }
+            }
+        }
     }
 }

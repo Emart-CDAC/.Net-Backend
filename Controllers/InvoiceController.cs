@@ -1,59 +1,46 @@
-using Emart_DotNet.Models;
 using Emart_DotNet.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Emart_DotNet.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/invoice")]
     public class InvoiceController : ControllerBase
     {
-        private readonly IInvoiceService _service;
+        private readonly IInvoiceService _invoiceService;
 
-        public InvoiceController(IInvoiceService service)
+        public InvoiceController(IInvoiceService invoiceService)
         {
-            _service = service;
+            _invoiceService = invoiceService;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Invoice>> CreateInvoice(Invoice invoice)
+        [HttpGet("download/{orderId}")]
+        public async Task<IActionResult> DownloadInvoice(int orderId)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                byte[] pdfBytes = await _invoiceService.GenerateInvoicePdfAsync(orderId);
+                return File(pdfBytes, "application/pdf", $"Invoice_{orderId}.pdf");
             }
-
-            var createdInvoice = await _service.CreateInvoiceAsync(invoice);
-            return CreatedAtAction(nameof(GetInvoiceById), new { id = createdInvoice.InvoiceId }, createdInvoice);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Invoice>> GetInvoiceById(int id)
-        {
-            var invoice = await _service.GetInvoiceByIdAsync(id);
-            if (invoice == null)
+            catch (System.Exception ex)
             {
-                return NotFound();
+                return BadRequest(new { message = ex.Message });
             }
-            return Ok(invoice);
         }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Invoice>>> GetAllInvoices()
+        
+        [HttpPost("generate/{orderId}")]
+        public async Task<IActionResult> GenerateInvoice(int orderId)
         {
-            var invoices = await _service.GetAllInvoicesAsync();
-            return Ok(invoices);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteInvoice(int id)
-        {
-            var result = await _service.DeleteInvoiceAsync(id);
-            if (!result)
+             try
             {
-                return NotFound();
+                var invoice = await _invoiceService.CreateInvoiceForOrderAsync(orderId);
+                return Ok(invoice);
             }
-            return NoContent();
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

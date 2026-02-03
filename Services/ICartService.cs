@@ -1,3 +1,7 @@
+using Emart_DotNet.Models;
+using Emart_DotNet.DTOs;
+using System.Threading.Tasks;
+
 namespace Emart_DotNet.Services
 {
     public interface ICartService

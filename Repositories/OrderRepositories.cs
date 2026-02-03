@@ -1,5 +1,7 @@
 using Emart_DotNet.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Emart_DotNet.Repositories
 {
@@ -26,7 +28,7 @@ namespace Emart_DotNet.Repositories
         public async Task<Order?> FindByIdAsync(int orderId)
         {
             return await _context.Orders
-                .Include(o => o.CustomerInvoices)
+                .Include(o => o.Invoices) // Changed from CustomerInvoices (check model)
                 .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
                 .Include(o => o.Address)
                 .Include(o => o.Store)
@@ -57,53 +59,9 @@ namespace Emart_DotNet.Repositories
 
         public async Task<OrderItem> SaveAsync(OrderItem orderItem)
         {
-            _context.OrderItems.Add(orderItem); // Only Add for OrderItems typically
+            _context.OrderItems.Add(orderItem); 
             await _context.SaveChangesAsync();
             return orderItem;
-        }
-    }
-
-    // Payment Repository
-    public interface IPaymentRepository
-    {
-        Task<Payment> SaveAsync(Payment payment);
-        Task<Payment?> FindByOrderOrderIdAsync(int orderId);
-    }
-
-    public class PaymentRepository : IPaymentRepository
-    {
-        private readonly AppDbContext _context;
-        public PaymentRepository(AppDbContext context) { _context = context; }
-
-        public async Task<Payment> SaveAsync(Payment payment)
-        {
-            if (payment.PaymentId == 0)
-                _context.Payments.Add(payment);
-            else
-                _context.Payments.Update(payment);
-            await _context.SaveChangesAsync();
-            return payment;
-        }
-
-        public async Task<Payment?> FindByOrderOrderIdAsync(int orderId)
-        {
-            return await _context.Payments
-                .FirstOrDefaultAsync(p => p.OrderId == orderId);
-        }
-    }
-    
-    // Address Repository
-    public interface IAddressRepository
-    {
-        Task<Address?> FindByIdAsync(int addressId);
-    }
-    public class AddressRepository : IAddressRepository
-    {
-        private readonly AppDbContext _context;
-        public AddressRepository(AppDbContext context) { _context = context; }
-        public async Task<Address?> FindByIdAsync(int addressId)
-        {
-            return await _context.Addresses.FindAsync(addressId);
         }
     }
 

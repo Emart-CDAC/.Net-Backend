@@ -1,9 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Emart_DotNet.Models;
 using Emart_DotNet.Repositories;
-
-using Emart_DotNet.Models;
-using Emart_DotNet.Repositories;
 using Emart_DotNet.Services;
 
 namespace Emart_DotNet
@@ -35,6 +32,8 @@ namespace Emart_DotNet
             
             builder.Services.AddScoped<IAddressRepository,AddressRepository>();
             builder.Services.AddScoped<IStoreRepository,StoreRepository>();
+            builder.Services.AddScoped<ICustomerRepository,CustomerRepository>();
+            builder.Services.AddScoped<IPaymentRepository,PaymentRepository>();
 
             builder.Services.AddScoped<ICartService,CartService>();
             builder.Services.AddScoped<IOrderService,OrderService>();
@@ -53,6 +52,9 @@ namespace Emart_DotNet
             builder.Services.AddScoped<IInvoiceService, InvoiceService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
+            builder.Services.AddScoped<IAddressService, AddressService>();
+            builder.Services.AddScoped<IEPointsService, EPointsService>();
+            // PaymentService already registered above or verify order
 
             var app = builder.Build();
 

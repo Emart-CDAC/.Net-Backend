@@ -1,3 +1,6 @@
+using Emart_DotNet.Models;
+using System.Threading.Tasks;
+
 namespace Emart_DotNet.Repositories
 {
     public interface ICartRepository

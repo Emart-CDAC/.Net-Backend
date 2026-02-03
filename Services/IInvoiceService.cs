@@ -8,5 +8,7 @@ namespace Emart_DotNet.Services
         Task<Invoice?> GetInvoiceByIdAsync(int invoiceId);
         Task<IEnumerable<Invoice>> GetAllInvoicesAsync();
         Task<bool> DeleteInvoiceAsync(int invoiceId);
+        Task<byte[]> GenerateInvoicePdfAsync(int orderId);
+        Task<Invoice> CreateInvoiceForOrderAsync(int orderId);
     }
 }
