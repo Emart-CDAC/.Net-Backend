@@ -107,18 +107,5 @@ namespace Emart_DotNet.Repositories
         }
     }
 
-    // Store Repository
-    public interface IStoreRepository
-    {
-        Task<Store?> FindByIdAsync(int storeId);
-    }
-    public class StoreRepository : IStoreRepository
-    {
-        private readonly AppDbContext _context;
-        public StoreRepository(AppDbContext context) { _context = context; }
-        public async Task<Store?> FindByIdAsync(int storeId)
-        {
-            return await _context.Stores.FindAsync(storeId);
-        }
-    }
+
 }

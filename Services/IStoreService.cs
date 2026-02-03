@@ -1,12 +1,11 @@
-﻿using Emart_DotNet.Models;
+using Emart_DotNet.Models;
 
-namespace Emart_DotNet.Repositories
+namespace Emart_DotNet.Services
 {
-    public interface IStoreRepository
+    public interface IStoreService
     {
         Task<IEnumerable<Store>> GetAllStoresAsync();
         Task<Store?> GetStoreByIdAsync(int storeId);
-        Task<Store?> FindByIdAsync(int storeId);
         Task<IEnumerable<Store>> GetStoresByCityAsync(string city);
     }
 }
