@@ -2,7 +2,7 @@
 {
     public enum DeliveryType
     {
-        STORE,
-        HOME_DELIVERY
+        Store,
+        HomeDelivery
     }
 }
