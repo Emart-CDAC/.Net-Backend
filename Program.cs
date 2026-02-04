@@ -5,6 +5,7 @@ using Emart_DotNet.Services;
 using Emart_DotNet.Configuration;
 using Emart_DotNet.Utilities.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -37,7 +38,9 @@ namespace Emart_DotNet
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
+            .AddCookie()
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -56,6 +59,7 @@ namespace Emart_DotNet
             {
                 googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
                 googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+                googleOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 // Verify this matches the Google Console redirect URI if set strictly
                 googleOptions.CallbackPath = "/signin-google"; 
             });
@@ -101,7 +105,7 @@ namespace Emart_DotNet
             {
                     options.AddPolicy("AllowReact",
                         policy => policy
-                            .WithOrigins("http://localhost:3000")
+                            .WithOrigins("http://localhost:5173", "http://localhost:3000")
                             .AllowAnyHeader()
                             .AllowAnyMethod());
             });

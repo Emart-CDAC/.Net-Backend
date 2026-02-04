@@ -2,6 +2,7 @@ using Emart_DotNet.Services;
 using Emart_DotNet.Utilities.Helpers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -34,12 +35,12 @@ namespace Emart_DotNet.Controllers
         [Route("/api/auth/google-callback")] // Internal callback route
         public async Task<IActionResult> GoogleCallback()
         {
-            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             if (!result.Succeeded)
             {
                 // Fallback or error handling
-                 return Redirect("http://localhost:3000/login?error=GoogleAuthFailed");
+                 return Redirect("http://localhost:5173/login?error=GoogleAuthFailed");
             }
 
             var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
@@ -48,7 +49,7 @@ namespace Emart_DotNet.Controllers
 
             if (string.IsNullOrEmpty(email))
             {
-                 return Redirect("http://localhost:3000/login?error=EmailNotFound");
+                 return Redirect("http://localhost:5173/login?error=EmailNotFound");
             }
 
             try 
@@ -57,11 +58,11 @@ namespace Emart_DotNet.Controllers
                 var token = _jwtHelper.GenerateToken(user);
                 
                 // Redirect to Frontend with Token
-                return Redirect($"http://localhost:3000/login?token={token}");
+                return Redirect($"http://localhost:5173/login?token={token}");
             }
             catch (Exception ex)
             {
-                return Redirect($"http://localhost:3000/login?error={Uri.EscapeDataString(ex.Message)}");
+                return Redirect($"http://localhost:5173/login?error={Uri.EscapeDataString(ex.Message)}");
             }
         }
     }
