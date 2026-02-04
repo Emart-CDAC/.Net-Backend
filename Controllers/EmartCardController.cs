@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Emart_DotNet.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/emart-card")]
     [ApiController]
     public class EmartCardController : ControllerBase
     {
@@ -17,7 +17,7 @@ namespace Emart_DotNet.Controllers
         }
 
         [HttpPost("apply")]
-        public async Task<ActionResult<EmartCard>> ApplyForCard(ApplyEmartCardRequest request)
+        public async Task<ActionResult<EmartCard>> ApplyForCard([FromBody] ApplyEmartCardRequest request)
         {
             try
             {
@@ -30,18 +30,25 @@ namespace Emart_DotNet.Controllers
             }
         }
 
-        [HttpGet("user/{userId}")]
+        [HttpPost("use-epoints")]
+        public async Task<ActionResult<string>> UseEpoints([FromQuery] int userId, [FromQuery] int pointsUsed)
+        {
+            try
+            {
+                await _emartCardService.UseEpointsAsync(userId, pointsUsed);
+                return Ok("E-points updated successfully");
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("details/{userId}")]
         public async Task<ActionResult<EmartCardDTO>> GetCardDetails(int userId)
         {
             var card = await _emartCardService.GetCardDetailsAsync(userId);
-            if (card == null)
-            {
-                return NotFound("No Emart Card found for this user.");
-            }
             return Ok(card);
         }
     }
-    
-    // Simple DTO for request if not already defined elsewhere, though it should be in DTOs folder ideally.
-    // Putting it here for now if DTOs/ApplyEmartCardRequest.cs doesn't exist, but checking first.
 }

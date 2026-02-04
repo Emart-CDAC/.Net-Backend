@@ -39,7 +39,10 @@ namespace Emart_DotNet.Repositories
         public async Task<List<Order>> FindByCustomerUserIdAsync(int userId)
         {
             return await _context.Orders
-                .Include(o => o.OrderItems)
+                .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+                .Include(o => o.Address)
+                .Include(o => o.Store)
+                .Include(o => o.User)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();

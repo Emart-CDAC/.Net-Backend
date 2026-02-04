@@ -1,41 +1,68 @@
-using Emart_DotNet.DTOs;
 using Emart_DotNet.Services;
+using Emart_DotNet.Utilities.Helpers;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Emart_DotNet.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("oauth2/authorization")] // Matches Frontend URL structure
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
+        private readonly IUserService _userService;
+        private readonly JwtHelper _jwtHelper;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IUserService userService, JwtHelper jwtHelper)
         {
-            _authService = authService;
+            _userService = userService;
+            _jwtHelper = jwtHelper;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        [HttpGet("google")]
+        public IActionResult GoogleLogin()
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var token = await _authService.LoginAsync(model);
-            if (token == null)
-                return Unauthorized(new { message = "Invalid email or password" });
-
-            return Ok(new { token });
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = Url.Action("GoogleCallback")
+            };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
-        
-        // Optional: Register endpoint if needed
-        /*
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+
+        [HttpGet("callback")]
+        [Route("/api/auth/google-callback")] // Internal callback route
+        public async Task<IActionResult> GoogleCallback()
         {
-            // Implementation...
-            return Ok();
+            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+
+            if (!result.Succeeded)
+            {
+                // Fallback or error handling
+                 return Redirect("http://localhost:3000/login?error=GoogleAuthFailed");
+            }
+
+            var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(email))
+            {
+                 return Redirect("http://localhost:3000/login?error=EmailNotFound");
+            }
+
+            try 
+            {
+                var user = await _userService.ProcessGoogleLoginAsync(email, name ?? "Google User");
+                var token = _jwtHelper.GenerateToken(user);
+                
+                // Redirect to Frontend with Token
+                return Redirect($"http://localhost:3000/login?token={token}");
+            }
+            catch (Exception ex)
+            {
+                return Redirect($"http://localhost:3000/login?error={Uri.EscapeDataString(ex.Message)}");
+            }
         }
-        */
     }
 }

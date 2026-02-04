@@ -13,8 +13,8 @@ namespace Emart_DotNet.Services
         
         Task<Order> UpdateOrderStatusAsync(int orderId, string status);
         
-        Task<List<Order>> GetOrdersByUserIdAsync(int userId);
+        Task<List<OrderResponseDTO>> GetOrdersByUserIdAsync(int userId);
         
-        Task<Order> GetOrderByIdAsync(int orderId);
+        Task<OrderResponseDTO> GetOrderByIdAsync(int orderId);
     }
 }

@@ -15,12 +15,20 @@ namespace Emart_DotNet.Repositories
 
         public async Task<List<Product>> GetAllAsync()
         {
-            return await _context.Products.ToListAsync();
+            return await _context.Products
+                .Include(p => p.Subcategory)
+                    .ThenInclude(sc => sc.Category)
+                        .ThenInclude(c => c.ParentCategory)
+                .ToListAsync();
         }
 
         public async Task<Product?> FindByIdAsync(int productId)
         {
-            return await _context.Products.FindAsync(productId);
+            return await _context.Products
+                .Include(p => p.Subcategory)
+                    .ThenInclude(sc => sc.Category)
+                        .ThenInclude(c => c.ParentCategory)
+                .FirstOrDefaultAsync(p => p.ProductId == productId);
         }
 
         public async Task<List<Product>> SearchProductsAsync(string keyword)
@@ -29,6 +37,9 @@ namespace Emart_DotNet.Repositories
                 return await GetAllAsync();
 
             return await _context.Products
+                .Include(p => p.Subcategory)
+                    .ThenInclude(sc => sc.Category)
+                        .ThenInclude(c => c.ParentCategory)
                 .Where(p => p.ProductName.Contains(keyword) || (p.Description != null && p.Description.Contains(keyword)))
                 .ToListAsync();
         }

@@ -29,7 +29,9 @@ namespace Emart_DotNet.Services
         {
              var order = await _context.Orders
                 .Include(o => o.User)
+                .Include(o => o.Address)
                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
              if (order == null) throw new Exception("Order not found");
@@ -200,8 +202,8 @@ namespace Emart_DotNet.Services
                         table.Cell().Padding(2).Text("Discount").Bold();
                         table.Cell().Padding(2).AlignRight().Text($"- Rs. {invoice.DiscountAmount:F2}");
                         
-                        table.Cell().Padding(2).Text("Tax").Bold();
-                        table.Cell().Padding(2).AlignRight().Text($"Rs. {invoice.TaxAmount:F2}");
+                        table.Cell().Padding(2).Text("GST (18%)").Bold();
+                        table.Cell().Padding(2).AlignRight().Text($"Rs. {(order.TotalAmount * 0.18m):F2}");
                         
                         table.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("TOTAL").Bold();
                         table.Cell().Background(Colors.Grey.Lighten2).Padding(5).AlignRight().Text($"Rs. {invoice.TotalAmount:F2}").Bold();
@@ -249,5 +251,25 @@ namespace Emart_DotNet.Services
         {
             return await _invoiceRepo.DeleteInvoiceAsync(invoiceId);
         }
+
+        public async Task<Invoice?> GetLatestInvoiceAsync()
+        {
+            return await _context.Invoices
+                .OrderByDescending(i => i.InvoiceId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<byte[]> GenerateInvoicePdfByInvoiceIdAsync(int invoiceId)
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.Order)
+                .FirstOrDefaultAsync(i => i.InvoiceId == invoiceId);
+
+            if (invoice == null) throw new Exception("Invoice not found");
+
+            // Reuse the existing PDF generation logic by orderId
+            return await GenerateInvoicePdfAsync(invoice.OrderId ?? 0);
+        }
     }
 }
+

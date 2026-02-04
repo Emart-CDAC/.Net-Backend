@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Emart_DotNet.Models;
 
@@ -27,7 +28,9 @@ public partial class Cart
 
     public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
 
+    [JsonIgnore]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
+    [JsonIgnore]
     public virtual Customer? User { get; set; }
 }

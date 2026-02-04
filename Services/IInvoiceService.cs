@@ -10,5 +10,8 @@ namespace Emart_DotNet.Services
         Task<bool> DeleteInvoiceAsync(int invoiceId);
         Task<byte[]> GenerateInvoicePdfAsync(int orderId);
         Task<Invoice> CreateInvoiceForOrderAsync(int orderId);
+        Task<Invoice?> GetLatestInvoiceAsync();
+        Task<byte[]> GenerateInvoicePdfByInvoiceIdAsync(int invoiceId);
     }
 }
+

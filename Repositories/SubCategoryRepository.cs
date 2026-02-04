@@ -15,6 +15,8 @@ namespace Emart_DotNet.Repositories
         public async Task<IEnumerable<SubCategory>> GetSubCategoriesByCategoryIdAsync(int categoryId)
         {
             return await _context.SubCategories
+                .Include(sc => sc.Category)
+                    .ThenInclude(c => c.ParentCategory)
                 .Where(sc => sc.CategoryId == categoryId)
                 .ToListAsync();
         }

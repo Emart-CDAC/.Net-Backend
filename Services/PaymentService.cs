@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using ModelPayment = Emart_DotNet.Models.Payment;
 using ModelOrder = Emart_DotNet.Models.Order;
@@ -23,8 +24,8 @@ namespace Emart_DotNet.Services
         {
             _paymentRepo = paymentRepo;
             _orderRepo = orderRepo;
-            _keyId = config["Razorpay:KeyId"];
-            _keySecret = config["Razorpay:KeySecret"];
+            _keyId = config["Razorpay:KeyId"] ?? "";
+            _keySecret = config["Razorpay:KeySecret"] ?? "";
         }
 
         public async Task<ModelPayment> ProcessPaymentAsync(ModelPayment payment)
@@ -32,14 +33,10 @@ namespace Emart_DotNet.Services
             payment.PaymentDate = DateTime.Now;
             if (payment.Status == PaymentStatus.Pending) 
                 payment.Status = PaymentStatus.Pending;
-            // if (payment.Mode == PaymentMethod.Cash) 
-            //    payment.Mode = PaymentMethod.Cash; 
             
-            // Assuming SaveAsync exists in repo
             return await _paymentRepo.SaveAsync(payment); 
         }
 
-        // Interface matching (assuming IPaymentService has these)
         public ModelPayment ProcessPayment(ModelPayment payment) 
         {
              return ProcessPaymentAsync(payment).Result;
@@ -69,7 +66,7 @@ namespace Emart_DotNet.Services
             return GetPaymentMethodAsync(orderId).Result;
         }
 
-        // Razorpay Implementation
+        // Razorpay Implementation - Fixed to return proper JSON
         public string CreateRazorpayOrder(int orderId)
         {
             var order = _orderRepo.FindByIdAsync(orderId).Result;
@@ -100,7 +97,21 @@ namespace Emart_DotNet.Services
 
             _paymentRepo.SaveAsync(payment).Wait();
 
-            return razorOrder.ToString(); 
+            // Return proper JSON with Razorpay order attributes
+            var responseObj = new Dictionary<string, object>
+            {
+                { "id", razorOrder["id"].ToString() },
+                { "entity", razorOrder["entity"]?.ToString() ?? "order" },
+                { "amount", razorOrder["amount"] },
+                { "amount_paid", razorOrder["amount_paid"] ?? 0 },
+                { "amount_due", razorOrder["amount_due"] ?? razorOrder["amount"] },
+                { "currency", razorOrder["currency"]?.ToString() ?? "INR" },
+                { "receipt", razorOrder["receipt"]?.ToString() ?? "" },
+                { "status", razorOrder["status"]?.ToString() ?? "created" },
+                { "created_at", razorOrder["created_at"] ?? 0 }
+            };
+            
+            return JsonSerializer.Serialize(responseObj);
         }
 
         public string CreateRazorpayOrder(double amount)
@@ -112,7 +123,22 @@ namespace Emart_DotNet.Services
             options.Add("receipt", "receipt_txn_" + DateTimeOffset.Now.ToUnixTimeMilliseconds());
 
             Razorpay.Api.Order razorOrder = client.Order.Create(options);
-            return razorOrder.ToString(); 
+            
+            // Return proper JSON with Razorpay order attributes
+            var responseObj = new Dictionary<string, object>
+            {
+                { "id", razorOrder["id"].ToString() },
+                { "entity", razorOrder["entity"]?.ToString() ?? "order" },
+                { "amount", razorOrder["amount"] },
+                { "amount_paid", razorOrder["amount_paid"] ?? 0 },
+                { "amount_due", razorOrder["amount_due"] ?? razorOrder["amount"] },
+                { "currency", razorOrder["currency"]?.ToString() ?? "INR" },
+                { "receipt", razorOrder["receipt"]?.ToString() ?? "" },
+                { "status", razorOrder["status"]?.ToString() ?? "created" },
+                { "created_at", razorOrder["created_at"] ?? 0 }
+            };
+            
+            return JsonSerializer.Serialize(responseObj);
         }
 
         public ModelPayment VerifyRazorpayPayment(int orderId, ModelPayment paymentDetails)

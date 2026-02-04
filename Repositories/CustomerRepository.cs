@@ -15,12 +15,16 @@ namespace Emart_DotNet.Repositories
         public async Task<Customer?> FindByUserIdAsync(int userId)
         {
             return await _context.Customers
+                .Include(c => c.CardHolder)
+                .Include(c => c.Address)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
         }
 
         public async Task<Customer?> FindByEmailAsync(string email)
         {
             return await _context.Customers
+                .Include(c => c.CardHolder)
+                .Include(c => c.Address)
                 .FirstOrDefaultAsync(c => c.Email == email);
         }
 

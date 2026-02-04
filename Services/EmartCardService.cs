@@ -30,9 +30,15 @@ namespace Emart_DotNet.Services
             var customer = await _customerRepository.FindByUserIdAsync(request.UserId)
                 ?? throw new Exception("User not found");
 
+            // Create card with ALL required fields from request (matching Java)
             var card = new EmartCard
             {
                 UserId = request.UserId,
+                AnnualIncome = (double)request.AnnualIncome,
+                PanCard = request.PanCard,
+                BankDetails = request.BankDetails,
+                Occupation = request.Occupation,
+                EducationQualification = request.EducationQualification,
                 PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow),
                 ExpiryDate = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(5)),
                 TotalEpointsUsed = 0,
@@ -41,8 +47,19 @@ namespace Emart_DotNet.Services
 
             await _emartCardRepository.SaveAsync(card);
 
-            customer.CardHolder = card;   // ✅ FIXED
-            customer.Epoints += 100;
+            // Update Customer Profile & Points
+            customer.CardHolder = card;
+            customer.Epoints += 100; // Bonus Points
+
+            // Update optional fields if provided
+            if (request.BirthDate.HasValue)
+            {
+                customer.BirthDate = request.BirthDate;
+            }
+            if (!string.IsNullOrEmpty(request.Interests))
+            {
+                customer.Interests = request.Interests;
+            }
 
             await _customerRepository.SaveAsync(customer);
 
@@ -55,7 +72,12 @@ namespace Emart_DotNet.Services
             var card = await _emartCardRepository.FindByUserIdAsync(userId)
                 ?? throw new Exception("eMart Card not found");
 
-            card.TotalEpointsUsed += pointsUsed;
+            if (card.Status != "ACTIVE")
+            {
+                throw new Exception("Card is not active");
+            }
+
+            card.TotalEpointsUsed = (card.TotalEpointsUsed ?? 0) + pointsUsed;
             await _emartCardRepository.SaveAsync(card);
         }
 

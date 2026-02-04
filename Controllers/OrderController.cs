@@ -27,7 +27,12 @@ namespace Emart_DotNet.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                // Include inner exception for better debugging
+                var message = ex.InnerException != null 
+                    ? $"{ex.Message} -> {ex.InnerException.Message}" 
+                    : ex.Message;
+                Console.WriteLine($"❌ Order placement error: {message}");
+                return BadRequest(message);
             }
         }
 

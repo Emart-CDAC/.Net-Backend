@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Emart_DotNet.Models;
 
@@ -21,6 +22,7 @@ public partial class CartItem
 
     public int? ProductId { get; set; }
 
+    [JsonIgnore]
     public virtual Cart? Cart { get; set; }
 
     public virtual Product? Product { get; set; }

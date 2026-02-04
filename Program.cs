@@ -16,6 +16,7 @@ namespace Emart_DotNet
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.WebHost.UseUrls("http://localhost:8080");
 
             builder.Services.AddControllers();
 
@@ -50,6 +51,13 @@ namespace Emart_DotNet
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
                     ClockSkew = TimeSpan.Zero
                 };
+            })
+            .AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+                // Verify this matches the Google Console redirect URI if set strictly
+                googleOptions.CallbackPath = "/signin-google"; 
             });
            
             builder.Services.AddEndpointsApiExplorer();
@@ -115,7 +123,7 @@ namespace Emart_DotNet
 
             builder.Services.AddScoped<ICartService,CartService>();
             builder.Services.AddScoped<IOrderService,OrderService>();
-            //builder.Services.AddScoped<IPaymentService,PaymentService>();
+            builder.Services.AddScoped<IPaymentService,PaymentService>();
             builder.Services.AddScoped<IProductService,ProductService>();
             builder.Services.AddScoped<IStoreService, StoreService>();
             builder.Services.AddScoped<ICheckoutService, CheckoutService>();
@@ -131,12 +139,23 @@ namespace Emart_DotNet
             builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
             builder.Services.AddScoped<IAddressService, AddressService>();
             builder.Services.AddScoped<IEPointsService, EPointsService>();
-            // PaymentService already registered above or verify order
             
             builder.Services.AddScoped<IEmartCardRepository, EmartCardRepository>();
 
-            builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IUserService, UserService>(); // Replaced CustomerService
             builder.Services.AddScoped<IEmartCardService, EmartCardService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            
+            // Add HttpClient for Analytics
+            builder.Services.AddHttpClient();
+            
+            // Add Health Checks
+            builder.Services.AddHealthChecks();
+            
+            // Admin Module
+            builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
             var app = builder.Build();
 
@@ -146,13 +165,26 @@ namespace Emart_DotNet
                 app.UseSwaggerUI();
             }
 
+            // Serve static files (images) from wwwroot
+            app.UseStaticFiles();
+
             app.UseHttpsRedirection();
+
+            // Add CORS policy
+            app.UseCors(policy => policy
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             app.UseAuthentication();
             app.UseAuthorization();
 
-
             app.MapControllers();
+            
+            // Map Health Checks & Actuator-like endpoints
+            app.MapHealthChecks("/actuator/health");
+            app.MapGet("/actuator/info", () => new { app = new { name = "Emart .NET Backend", version = "1.0.0" } });
+            app.MapGet("/actuator/metrics", () => new { message = "Metrics not fully implemented but endpoint exists" });
 
             app.Run();
         }

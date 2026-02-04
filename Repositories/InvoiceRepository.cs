@@ -23,6 +23,10 @@ namespace Emart_DotNet.Repositories
         {
             return await _context.Invoices
                 .Include(i => i.Order)
+                    .ThenInclude(o => o.Address)
+                .Include(i => i.Order)
+                    .ThenInclude(o => o.OrderItems)
+                        .ThenInclude(oi => oi.Product)
                 .Include(i => i.User)
                 .FirstOrDefaultAsync(i => i.InvoiceId == invoiceId);
         }
@@ -31,6 +35,10 @@ namespace Emart_DotNet.Repositories
         {
             return await _context.Invoices
                 .Include(i => i.Order)
+                    .ThenInclude(o => o.Address)
+                .Include(i => i.Order)
+                    .ThenInclude(o => o.OrderItems)
+                        .ThenInclude(oi => oi.Product)
                 .Include(i => i.User)
                 .ToListAsync();
         }

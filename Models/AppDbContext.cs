@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
+using Emart_DotNet.Converters;
 
 namespace Emart_DotNet.Models;
 
@@ -290,7 +291,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.AddressId).HasColumnName("address_id");
             entity.Property(e => e.CartId).HasColumnName("cart_id");
             entity.Property(e => e.DeliveryType)
-                 .HasConversion<string>()
+                 .HasConversion(new DeliveryTypeConverter())
                 .HasColumnName("delivery_type");
             entity.Property(e => e.EpointsEarned).HasColumnName("epoints_earned");
             entity.Property(e => e.EpointsUsed).HasColumnName("epoints_used");
@@ -298,13 +299,13 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(6)
                 .HasColumnName("order_date");
             entity.Property(e => e.PaymentMethod)
-                .HasConversion<string>()
+                .HasConversion(new PaymentMethodConverter())
                 .HasColumnName("payment_method");
             entity.Property(e => e.PaymentStatus)
-                 .HasConversion<string>()
+                 .HasConversion(new PaymentStatusConverter())
                 .HasColumnName("payment_status");
             entity.Property(e => e.Status)
-                .HasConversion<string>()
+                .HasConversion(new OrderStatusConverter())
                 .HasColumnName("status");
             entity.Property(e => e.StoreId).HasColumnName("store_id");
             entity.Property(e => e.TotalAmount)
