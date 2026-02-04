@@ -2,6 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Emart_DotNet.Models;
 using Emart_DotNet.Repositories;
 using Emart_DotNet.Services;
+using Emart_DotNet.Configuration;
+using Emart_DotNet.Utilities.Helpers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace Emart_DotNet
 {
@@ -12,9 +18,71 @@ namespace Emart_DotNet
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
+
+            // ===== CONFIGURATION =====
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+            // ===== HELPERS & SERVICES =====
+            builder.Services.AddScoped<JwtHelper>();
+            builder.Services.AddScoped<PasswordHelper>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+
+            // ===== JWT AUTHENTICATION =====
+            var jwtSettingsSection = builder.Configuration.GetSection("JwtSettings");
+            var jwtSettings = jwtSettingsSection.Get<JwtSettings>();
+            var secretKey = jwtSettings?.Secret ?? "YourSuperSecretKeyForJwtSigning_MustBeAtLeast32CharsLong";
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings?.Issuer,
+                    ValidAudience = jwtSettings?.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
            
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "E-Tour API", Version = "v1" });
+
+                // JWT Authentication in Swagger
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter 'Bearer' followed by your JWT token"
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
   
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(
@@ -67,6 +135,7 @@ namespace Emart_DotNet
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
