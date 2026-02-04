@@ -19,7 +19,10 @@ namespace Emart_DotNet
             var builder = WebApplication.CreateBuilder(args);
             builder.WebHost.UseUrls("http://localhost:8080");
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options =>
+            {
+                options.Filters.Add<Emart_DotNet.Utilities.Filters.LoggingActionFilter>();
+            });
 
             // ===== CONFIGURATION =====
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
