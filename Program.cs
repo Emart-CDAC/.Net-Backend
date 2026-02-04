@@ -21,6 +21,14 @@ namespace Emart_DotNet
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.40-mysql")
                 ));
+            builder.Services.AddCors(options =>
+            {
+                    options.AddPolicy("AllowReact",
+                        policy => policy
+                            .WithOrigins("http://localhost:3000")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod());
+            });
 
             builder.Services.AddScoped<ICartRepository,CartRepository>();
             builder.Services.AddScoped<ICartItemRepository,CartItemRepository>();
@@ -56,6 +64,11 @@ namespace Emart_DotNet
             builder.Services.AddScoped<IAddressService, AddressService>();
             builder.Services.AddScoped<IEPointsService, EPointsService>();
             // PaymentService already registered above or verify order
+            
+            builder.Services.AddScoped<IEmartCardRepository, EmartCardRepository>();
+
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IEmartCardService, EmartCardService>();
 
             var app = builder.Build();
 

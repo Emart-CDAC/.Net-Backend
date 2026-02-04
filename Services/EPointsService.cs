@@ -16,7 +16,7 @@ namespace Emart_DotNet.Services
 
         public async Task<int> CreditPointsAsync(int userId, int points)
         {
-            var customer = await _customerRepo.FindByIdAsync(userId);
+            var customer = await _customerRepo.FindByUserIdAsync(userId);
             if (customer == null) throw new Exception("User not found");
 
             customer.Epoints = (customer.Epoints ?? 0) + points;
@@ -26,7 +26,7 @@ namespace Emart_DotNet.Services
 
         public async Task<int> RedeemPointsAsync(int userId, int points)
         {
-            var customer = await _customerRepo.FindByIdAsync(userId);
+            var customer = await _customerRepo.FindByUserIdAsync(userId);
             if (customer == null) throw new Exception("User not found");
 
             if ((customer.Epoints ?? 0) < points)
@@ -39,7 +39,7 @@ namespace Emart_DotNet.Services
 
         public async Task<int> GetBalanceAsync(int userId)
         {
-            var customer = await _customerRepo.FindByIdAsync(userId);
+            var customer = await _customerRepo.FindByUserIdAsync(userId);
             if (customer == null) throw new Exception("User not found");
             return customer.Epoints ?? 0;
         }
