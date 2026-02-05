@@ -1,6 +1,7 @@
 using Emart_DotNet.DTOs;
 using Emart_DotNet.Models;
 using Emart_DotNet.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,6 +12,7 @@ namespace Emart_DotNet.Controllers
 {
     [ApiController]
     [Route("api/admin/dashboard")]
+    [Authorize]
     public class AdminDashboardController : ControllerBase
     {
         private readonly IAdminDashboardService _dashboardService;

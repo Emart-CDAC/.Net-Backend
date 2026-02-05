@@ -1,5 +1,6 @@
 using Emart_DotNet.DTOs;
 using Emart_DotNet.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -8,13 +9,16 @@ namespace Emart_DotNet.Controllers
 {
     [ApiController]
     [Route("api/order")]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly ILogger<OrderController> _logger;
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, ILogger<OrderController> logger)
         {
             _orderService = orderService;
+            _logger = logger;
         }
 
         [HttpPost("place")]
@@ -23,15 +27,23 @@ namespace Emart_DotNet.Controllers
             try
             {
                 var order = await _orderService.PlaceOrderAsync(req);
+                
+                // Simple log: Order placed | UserId | Date | Time | Amount
+                _logger.LogInformation("ORDER PLACED | OrderId: {OrderId} | UserId: {UserId} | Date: {Date} | Time: {Time} | Amount: {Amount}", 
+                    order.OrderId, 
+                    req.UserId, 
+                    DateTime.Now.ToString("yyyy-MM-dd"),
+                    DateTime.Now.ToString("HH:mm:ss"),
+                    order.TotalAmount);
+                
                 return Ok(order);
             }
             catch (Exception ex)
             {
-                // Include inner exception for better debugging
                 var message = ex.InnerException != null 
                     ? $"{ex.Message} -> {ex.InnerException.Message}" 
                     : ex.Message;
-                Console.WriteLine($"❌ Order placement error: {message}");
+                _logger.LogError("ORDER FAILED | UserId: {UserId} | Error: {Error}", req.UserId, message);
                 return BadRequest(message);
             }
         }
@@ -65,3 +77,5 @@ namespace Emart_DotNet.Controllers
         }
     }
 }
+
+

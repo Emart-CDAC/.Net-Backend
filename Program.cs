@@ -4,10 +4,12 @@ using Emart_DotNet.Repositories;
 using Emart_DotNet.Services;
 using Emart_DotNet.Configuration;
 using Emart_DotNet.Utilities.Helpers;
+using Emart_DotNet.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 
 namespace Emart_DotNet
@@ -16,8 +18,25 @@ namespace Emart_DotNet
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-            builder.WebHost.UseUrls("http://localhost:8080");
+            // Configure Serilog for file and console logging
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                // Suppress noisy framework logs
+                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+                .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+                .WriteTo.Console()
+                .WriteTo.File("Logs/emart-.txt", 
+                    rollingInterval: RollingInterval.Day,
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .CreateLogger();
+
+            try
+            {
+                var builder = WebApplication.CreateBuilder(args);
+                builder.Host.UseSerilog(); // Use Serilog instead of default logging
+                builder.WebHost.UseUrls("http://localhost:8080");
 
             builder.Services.AddControllers();
 
@@ -99,7 +118,13 @@ namespace Emart_DotNet
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
-                    Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.40-mysql")
+                    Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.40-mysql"),
+                    mySqlOptions => mySqlOptions
+                        .EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(10),
+                            errorNumbersToAdd: null)
+                        .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
                 ));
             builder.Services.AddCors(options =>
             {
@@ -169,6 +194,9 @@ namespace Emart_DotNet
                 app.UseSwaggerUI();
             }
 
+            // Global Exception Handler Middleware (must be early in pipeline)
+            app.UseGlobalExceptionHandler();
+
             // Serve static files (images) from wwwroot
             app.UseStaticFiles();
 
@@ -190,7 +218,17 @@ namespace Emart_DotNet
             app.MapGet("/actuator/info", () => new { app = new { name = "Emart .NET Backend", version = "1.0.0" } });
             app.MapGet("/actuator/metrics", () => new { message = "Metrics not fully implemented but endpoint exists" });
 
+            Log.Information("Emart .NET Backend started successfully");
             app.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Application terminated unexpectedly");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
     }
 }
