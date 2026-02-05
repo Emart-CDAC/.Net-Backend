@@ -47,17 +47,26 @@ namespace Emart_DotNet.Services
              // If we have strict fields in Order for these, use them. 
              // For now creating a basic Invoice record.
              
-             var invoice = new Invoice
-{
-    OrderId = orderId,
-    OrderDate = order.OrderDate ?? DateTime.Now,
-    TotalAmount = total,
-    TaxAmount = 0,
-    DiscountAmount = 0,
-    UserId = order.UserId,
-    EpointsUsed = order.EpointsUsed ?? 0,
-    EpointsEarned = order.EpointsEarned ?? 0
-};
+                // Helper to format address
+                string addressStr = order.Address != null 
+                    ? $"{order.Address.HouseNumber}, {order.Address.Landmark}, {order.Address.Town}, {order.Address.City}, {order.Address.State} - {order.Address.Pincode}"
+                    : "";
+
+                var invoice = new Invoice
+                {
+                    OrderId = orderId,
+                    OrderDate = order.OrderDate ?? DateTime.Now,
+                    TotalAmount = total,
+                    TaxAmount = tax,
+                    DiscountAmount = 0,
+                    UserId = order.UserId,
+                    EpointsUsed = order.EpointsUsed ?? 0,
+                    EpointsEarned = order.EpointsEarned ?? 0,
+                    DeliveryType = order.DeliveryType,
+                    EpointsBalance = order.User?.Epoints ?? 0,
+                    ShippingAddress = addressStr,
+                    BillingAddress = addressStr // Assuming same for now
+                };
              
              _context.Invoices.Add(invoice);
              await _context.SaveChangesAsync();

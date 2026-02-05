@@ -400,6 +400,40 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FKlouu98csyullos9k25tbpk4va");
         });
 
+        modelBuilder.Entity<Invoice>(entity =>
+        {
+            entity.HasKey(e => e.InvoiceId).HasName("PRIMARY");
+
+            entity.ToTable("customer_invoice");
+
+            entity.HasIndex(e => e.OrderId, "FK_Invoice_Order");
+            entity.HasIndex(e => e.UserId, "FK_Invoice_User");
+
+            entity.Property(e => e.InvoiceId).HasColumnName("invoice_id");
+            entity.Property(e => e.BillingAddress).HasColumnName("billing_address");
+            entity.Property(e => e.DeliveryType)
+                 .HasConversion(new DeliveryTypeConverter())
+                 .HasColumnName("delivery_type");
+            entity.Property(e => e.DiscountAmount).HasColumnName("discount_amount");
+            entity.Property(e => e.EpointsBalance).HasColumnName("epoints_balance");
+            entity.Property(e => e.EpointsEarned).HasColumnName("epoints_earned");
+            entity.Property(e => e.EpointsUsed).HasColumnName("epoints_used");
+            entity.Property(e => e.OrderDate).HasColumnName("order_date");
+            entity.Property(e => e.ShippingAddress).HasColumnName("shipping_address");
+            entity.Property(e => e.TaxAmount).HasColumnName("tax_amount");
+            entity.Property(e => e.TotalAmount).HasColumnName("total_amount");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.OrderId).HasColumnName("order_id");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.Invoices)
+                .HasForeignKey(d => d.OrderId)
+                .HasConstraintName("FK_Invoice_Order");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Invoices)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_Invoice_User");
+        });
+
         modelBuilder.Entity<Product>(entity =>
         {
             entity.HasKey(e => e.ProductId).HasName("PRIMARY");
