@@ -22,7 +22,7 @@ namespace Emart_DotNet.Services
 
         public async Task<EmartCard> ApplyForCardAsync(ApplyEmartCardRequest request)
         {
-            using var tx = await _context.Database.BeginTransactionAsync();
+           // using var tx = await _context.Database.BeginTransactionAsync();
 
             if (await _emartCardRepository.ExistsByUserIdAsync(request.UserId))
                 throw new Exception("User already has an eMart Card");
@@ -63,7 +63,7 @@ namespace Emart_DotNet.Services
 
             await _customerRepository.SaveAsync(customer);
 
-            await tx.CommitAsync();
+          //  await tx.CommitAsync();
             return card;
         }
 
